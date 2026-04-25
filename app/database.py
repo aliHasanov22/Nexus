@@ -303,7 +303,13 @@ def list_recent_incidents(limit: int = 5) -> list[dict[str, Any]]:
             """,
             (limit,),
         ).fetchall()
-    return [_incident_from_row(row) for row in rows if _incident_from_row(row)]
+    incidents = []
+    for row in rows:
+        incident = _incident_from_row(row)
+        if incident:
+            incidents.append(incident)
+    return incidents
+
 
 
 def resolve_active_incidents() -> None:
@@ -363,4 +369,3 @@ def activate_scenario(
         connection.commit()
         row = connection.execute("SELECT * FROM incidents WHERE id = ?", (incident_id,)).fetchone()
     return _incident_from_row(row)
-

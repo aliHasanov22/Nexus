@@ -1,6 +1,6 @@
 .venv/
 __pycache__/
 *.pyc
-data/nexus_metrotwin.db
+data/*.db
+data/opendata_station_cache.json
 .DS_Store
-

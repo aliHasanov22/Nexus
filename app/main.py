@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request, status
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -135,7 +135,7 @@ def build_bootstrap_payload(user: dict[str, Any]) -> dict[str, Any]:
 
 
 @app.get("/", response_class=HTMLResponse)
-def landing_page(request: Request) -> HTMLResponse:
+def landing_page(request: Request) -> Response:
     user = get_current_user(request)
     return templates.TemplateResponse(
         request,
@@ -148,7 +148,7 @@ def landing_page(request: Request) -> HTMLResponse:
 
 
 @app.get("/login", response_class=HTMLResponse)
-def login_page(request: Request) -> HTMLResponse | RedirectResponse:
+def login_page(request: Request) -> Response:
     user = get_current_user(request)
     if user:
         return RedirectResponse(redirect_for_role(user["role"]), status_code=status.HTTP_303_SEE_OTHER)
@@ -160,7 +160,7 @@ def login_page(request: Request) -> HTMLResponse | RedirectResponse:
 
 
 @app.get("/register", response_class=HTMLResponse)
-def register_page(request: Request) -> HTMLResponse | RedirectResponse:
+def register_page(request: Request) -> Response:
     user = get_current_user(request)
     if user:
         return RedirectResponse(redirect_for_role(user["role"]), status_code=status.HTTP_303_SEE_OTHER)
@@ -172,7 +172,7 @@ def register_page(request: Request) -> HTMLResponse | RedirectResponse:
 
 
 @app.get("/staff-login", response_class=HTMLResponse)
-def staff_login_page(request: Request) -> HTMLResponse | RedirectResponse:
+def staff_login_page(request: Request) -> Response:
     user = get_current_user(request)
     if user:
         return RedirectResponse(redirect_for_role(user["role"]), status_code=status.HTTP_303_SEE_OTHER)
@@ -184,7 +184,7 @@ def staff_login_page(request: Request) -> HTMLResponse | RedirectResponse:
 
 
 @app.get("/user", response_class=HTMLResponse)
-def user_dashboard(request: Request) -> HTMLResponse | RedirectResponse:
+def user_dashboard(request: Request) -> Response:
     guarded = page_guard(request, {"user", "staff", "admin"})
     if isinstance(guarded, RedirectResponse):
         return guarded
@@ -197,7 +197,7 @@ def user_dashboard(request: Request) -> HTMLResponse | RedirectResponse:
 
 
 @app.get("/staff", response_class=HTMLResponse)
-def staff_dashboard(request: Request) -> HTMLResponse | RedirectResponse:
+def staff_dashboard(request: Request) -> Response:
     guarded = page_guard(request, {"staff", "admin"}, login_path="/staff-login")
     if isinstance(guarded, RedirectResponse):
         return guarded
@@ -210,7 +210,7 @@ def staff_dashboard(request: Request) -> HTMLResponse | RedirectResponse:
 
 
 @app.get("/admin", response_class=HTMLResponse)
-def admin_panel(request: Request) -> HTMLResponse | RedirectResponse:
+def admin_panel(request: Request) -> Response:
     guarded = page_guard(request, {"admin"}, login_path="/staff-login")
     if isinstance(guarded, RedirectResponse):
         return guarded
@@ -223,7 +223,7 @@ def admin_panel(request: Request) -> HTMLResponse | RedirectResponse:
 
 
 @app.get("/logout")
-def logout() -> RedirectResponse:
+def logout() -> Response:
     response = RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)
     response.delete_cookie(SESSION_COOKIE)
     return response

@@ -3,10 +3,10 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any
 
+from .opendata import get_latest_station_entries
 from .seed_data import DEFAULT_EVENT_STATIONS, LINES, SCENARIOS, SEGMENTS, STATIONS, TRAINS
 
 
-STATION_LOOKUP = {station["id"]: station for station in STATIONS}
 SEGMENT_LOOKUP = {segment["id"]: segment for segment in SEGMENTS}
 
 
@@ -14,12 +14,65 @@ def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def get_station_catalog() -> dict[str, Any]:
+    data_feed = get_latest_station_entries()
+    station_entries = data_feed.get("station_entries", {})
+    enriched_stations = []
+
+    for station in STATIONS:
+        live_entry = station_entries.get(station["id"])
+        effective_base = station["base_passengers"]
+        daily_entries = None
+        observed_date = None
+        source_label = "Synthetic demo baseline"
+
+        if live_entry:
+            daily_entries = int(live_entry["daily_entries"])
+            observed_date = data_feed.get("latest_date")
+            source_label = "Latest station-entry baseline from opendata.az"
+            effective_base = max(
+                180,
+                min(
+                    station["max_capacity"] - 60,
+                    int(round(daily_entries / 60)),
+                ),
+            )
+
+        enriched_stations.append(
+            {
+                **station,
+                "synthetic_base_passengers": station["base_passengers"],
+                "base_passengers": effective_base,
+                "daily_entries": daily_entries,
+                "observed_date": observed_date,
+                "data_source": data_feed.get("source", "seed") if live_entry else "seed",
+                "source_label": source_label,
+            }
+        )
+
+    return {
+        "stations": enriched_stations,
+        "data_feed": {
+            "source": data_feed.get("source", "seed"),
+            "latest_date": data_feed.get("latest_date"),
+            "package_modified": data_feed.get("package_modified"),
+            "cache_status": data_feed.get("cache_status", "unavailable"),
+        },
+    }
+
+
+def _station_lookup() -> dict[str, Any]:
+    return {station["id"]: station for station in get_station_catalog()["stations"]}
+
+
 def get_network_definition() -> dict[str, Any]:
+    station_bundle = get_station_catalog()
     return {
         "lines": list(LINES.values()),
-        "stations": STATIONS,
+        "stations": station_bundle["stations"],
         "segments": SEGMENTS,
         "trains": TRAINS,
+        "data_feed": station_bundle["data_feed"],
     }
 
 
@@ -45,11 +98,12 @@ def crowd_level_for_ratio(ratio: float) -> str:
 
 
 def _segment_label(segment_id: str) -> str:
+    stations = _station_lookup()
     segment = SEGMENT_LOOKUP.get(segment_id)
     if not segment:
         return segment_id
-    station_a = STATION_LOOKUP[segment["from"]]["name"]
-    station_b = STATION_LOOKUP[segment["to"]]["name"]
+    station_a = stations[segment["from"]]["name"]
+    station_b = stations[segment["to"]]["name"]
     return f"{station_a} - {station_b}"
 
 
@@ -123,6 +177,7 @@ def compute_evacuation_estimate(scenario_id: str, affected_station_ids: list[str
     if scenario_id in {"normal", "rush-hour", "event-surge"}:
         return 0
 
+    stations = _station_lookup()
     base = 90
     if scenario_id == "track-intrusion":
         base = 180
@@ -132,9 +187,9 @@ def compute_evacuation_estimate(scenario_id: str, affected_station_ids: list[str
         base = 140
 
     station_load = sum(
-        STATION_LOOKUP[station_id]["base_passengers"]
+        stations[station_id]["base_passengers"]
         for station_id in affected_station_ids
-        if station_id in STATION_LOOKUP
+        if station_id in stations
     )
     return base + int(station_load * 0.4)
 
@@ -144,9 +199,10 @@ def build_bottleneck_analysis(
     affected_station_ids: list[str],
 ) -> list[dict[str, Any]]:
     affected_set = set(affected_station_ids)
+    station_catalog = get_station_catalog()["stations"]
     ranked = [
         get_station_projection(station, scenario_id, affected_set)
-        for station in STATIONS
+        for station in station_catalog
     ]
     ranked.sort(key=lambda item: item["utilization"], reverse=True)
     return ranked[:6]
@@ -157,7 +213,8 @@ def build_recommended_actions(
     affected_station_ids: list[str],
     affected_segment_ids: list[str],
 ) -> list[str]:
-    station_names = [STATION_LOOKUP[station_id]["name"] for station_id in affected_station_ids if station_id in STATION_LOOKUP]
+    stations = _station_lookup()
+    station_names = [stations[station_id]["name"] for station_id in affected_station_ids if station_id in stations]
     segment_names = [_segment_label(segment_id) for segment_id in affected_segment_ids]
 
     if scenario_id == "normal":
@@ -171,7 +228,7 @@ def build_recommended_actions(
             "Increase dwell supervision and meter gate inflow at transfer stations.",
         ]
     if scenario_id == "event-surge":
-        focus = ", ".join(station_names or [STATION_LOOKUP[station_id]["name"] for station_id in DEFAULT_EVENT_STATIONS[:3]])
+        focus = ", ".join(station_names or [stations[station_id]["name"] for station_id in DEFAULT_EVENT_STATIONS[:3]])
         return [
             f"Pre-position queue barriers and wayfinding staff near {focus}.",
             "Broadcast staggered exit guidance before and after the event peak.",
@@ -220,6 +277,7 @@ def build_live_state(
     active_incident: dict[str, Any] | None,
     alerts: list[dict[str, Any]],
 ) -> dict[str, Any]:
+    stations = _station_lookup()
     scenario_id = active_incident["scenario_id"] if active_incident else "normal"
     scenario = SCENARIOS[scenario_id]
     affected_station_ids = active_incident["affected_station_ids"] if active_incident else []
@@ -233,9 +291,9 @@ def build_live_state(
         "incident": active_incident,
         "alerts": alerts,
         "affected_stations": [
-            {"id": station_id, "name": STATION_LOOKUP[station_id]["name"]}
+            {"id": station_id, "name": stations[station_id]["name"]}
             for station_id in affected_station_ids
-            if station_id in STATION_LOOKUP
+            if station_id in stations
         ],
         "affected_segments": [
             {"id": segment_id, "label": _segment_label(segment_id)}

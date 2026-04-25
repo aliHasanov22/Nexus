@@ -135,6 +135,10 @@ document.addEventListener("DOMContentLoaded", function () {
       crowdLevel: crowdLevel,
       status: status,
       tags: station.tags,
+      dailyEntries: station.daily_entries,
+      observedDate: station.observed_date,
+      dataSource: station.data_source,
+      sourceLabel: station.source_label,
     };
   }
 
@@ -405,10 +409,14 @@ document.addEventListener("DOMContentLoaded", function () {
   function renderModeSummary() {
     var liveLabel = state.liveState.scenario.label;
     var displayLabel = activeScenario().label;
+    var dataFeed = state.bootstrap.network.data_feed || {};
+    var feedCopy = dataFeed.latest_date
+      ? "<small>Latest station-entry baseline: " + core.escapeHTML(dataFeed.latest_date) + " (" + core.escapeHTML(dataFeed.source) + ").</small>"
+      : "<small>Using synthetic fallback station baselines.</small>";
     var previewCopy =
       state.role === "user" && state.previewScenarioId !== "live"
-        ? "<strong>Previewing:</strong> " + core.escapeHTML(displayLabel) + "<br><small>Live incident remains " + core.escapeHTML(liveLabel) + ".</small>"
-        : "<strong>Live:</strong> " + core.escapeHTML(liveLabel) + "<br><small>Updated " + core.escapeHTML(core.formatRelativeTime(state.liveState.generated_at)) + "</small>";
+        ? "<strong>Previewing:</strong> " + core.escapeHTML(displayLabel) + "<br><small>Live incident remains " + core.escapeHTML(liveLabel) + ".</small><br>" + feedCopy
+        : "<strong>Live:</strong> " + core.escapeHTML(liveLabel) + "<br><small>Updated " + core.escapeHTML(core.formatRelativeTime(state.liveState.generated_at)) + "</small><br>" + feedCopy;
 
     elements.modeSummary.innerHTML =
       '<div class="mode-badge">' +
@@ -616,12 +624,19 @@ document.addEventListener("DOMContentLoaded", function () {
       " / " +
       station.projectedCapacity +
       "</strong></div>" +
+      '<div class="inspector-stat"><span>Latest daily entries</span><strong>' +
+      (station.dailyEntries ? station.dailyEntries.toLocaleString() : "Synthetic") +
+      "</strong></div>" +
       '<div class="inspector-stat"><span>Service</span><strong>' +
       core.escapeHTML(station.status) +
       "</strong></div>" +
       '<div class="inspector-stat"><span>Next train</span><strong>' +
       core.escapeHTML(station.nextTrain) +
       "</strong></div>" +
+      '<div class="inspector-source">' +
+      core.escapeHTML(station.sourceLabel || "Synthetic demo baseline") +
+      (station.observedDate ? " • " + core.escapeHTML(station.observedDate) : "") +
+      "</div>" +
       '<div class="progress-bar"><span style="width:' +
       Math.min(100, Math.round(station.utilization * 100)) +
       '%"></span></div>' +
