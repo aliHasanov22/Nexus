@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% set page_title = "Nexus MetroTwin | Public Dashboard" %}
+{% set body_class = "dashboard-body" %}
+{% set page_id = "dashboard" %}
+{% set dashboard_role = "user" %}
+
+{% block content %}
+<main class="dashboard-shell">
+    <header class="topbar">
+        <a href="/" class="brand-lockup">
+            <span class="brand-mark">NM</span>
+            <span>
+                <strong>Nexus MetroTwin</strong>
+                <small>Public network view</small>
+            </span>
+        </a>
+        <div class="topbar-meta">
+            <div class="user-chip">
+                <span class="status-dot status-dot--live"></span>
+                <span>{{ current_user.name }}</span>
+                <small>{{ current_user.role }}</small>
+            </div>
+            <a class="button button--ghost" href="/logout">Logout</a>
+        </div>
+    </header>
+
+    <section class="hero-strip panel">
+        <div>
+            <div class="eyebrow">Public User Dashboard</div>
+            <h1>Baku Metro live passenger twin</h1>
+            <p>Watch train movement, station crowding, and service changes, then preview rush-hour or event pressure without changing live operations.</p>
+        </div>
+        <div class="hero-strip__meta" id="dashboard-mode-summary"></div>
+    </section>
+
+    <section class="metric-grid" id="summary-metrics"></section>
+
+    <section class="alert-stack" id="alert-banner"></section>
+
+    <section class="dashboard-grid dashboard-grid--public">
+        <article class="panel panel--map">
+            <div class="section-head">
+                <h2>Metro Network</h2>
+                <span id="map-legend" class="inline-legend"></span>
+            </div>
+            <div id="metro-map" class="metro-map"></div>
+        </article>
+
+        <aside class="panel sidebar-stack">
+            <div class="section-head">
+                <h2>Preview Mode</h2>
+            </div>
+            <div id="public-preview-controls" class="scenario-switcher"></div>
+            <div class="divider"></div>
+            <div class="section-head">
+                <h2>Station Detail</h2>
+            </div>
+            <div id="station-inspector" class="station-inspector"></div>
+            <div class="divider"></div>
+            <div class="section-head">
+                <h2>Live Situation</h2>
+            </div>
+            <div id="live-situation" class="info-list"></div>
+        </aside>
+    </section>
+
+    <section class="analytics-grid analytics-grid--two">
+        <article class="panel">
+            <div class="section-head">
+                <h2>Passenger Count Over Time</h2>
+            </div>
+            <div id="passenger-chart" class="chart-surface"></div>
+        </article>
+        <article class="panel">
+            <div class="section-head">
+                <h2>Delay Impact by Scenario</h2>
+            </div>
+            <div id="delay-chart" class="chart-surface"></div>
+        </article>
+    </section>
+
+    <section class="panel">
+        <div class="section-head">
+            <h2>Station Status</h2>
+        </div>
+        <div id="station-cards" class="station-card-grid"></div>
+    </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/dashboard.js" defer></script>
+{% endblock %}
+

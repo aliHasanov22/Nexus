@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% set page_title = "Nexus MetroTwin Access" %}
+{% set body_class = "auth-body" %}
+{% set page_id = "auth" %}
+
+{% block content %}
+<main class="auth-shell">
+    <section class="auth-hero panel">
+        <a href="/" class="brand-lockup brand-lockup--inline">
+            <span class="brand-mark">NM</span>
+            <span>
+                <strong>Nexus MetroTwin</strong>
+                <small>Metro passenger and operations twin</small>
+            </span>
+        </a>
+        <div class="eyebrow">{{ "Staff access only" if portal == "staff" else "Public access" }}</div>
+        <h1>{{ "Metro Staff Login" if portal == "staff" else "Access Nexus MetroTwin" }}</h1>
+        <p>
+            {% if mode == "register" %}
+            Create a public user account to explore train movement, station crowding, and scenario previews.
+            {% elif portal == "staff" %}
+            Enter the operational dashboard to manage incidents, delays, and public alerts.
+            {% else %}
+            Sign in to the live metro twin and open your role-specific dashboard instantly.
+            {% endif %}
+        </p>
+        <div class="auth-aside-card">
+            <strong>Hackathon MVP focus</strong>
+            <ul class="feature-list compact-list">
+                <li>Role-based login and redirects</li>
+                <li>Live metro map with simulated trains</li>
+                <li>Scenario controls and public alerts</li>
+                <li>Seeded demo users and staff management</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="auth-panel panel">
+        <div class="section-head">
+            <h2>{{ "Register" if mode == "register" else "Login" }}</h2>
+            <span class="status-dot status-dot--live"></span>
+        </div>
+        <form
+            class="auth-form"
+            data-mode="{{ mode }}"
+            data-portal="{{ portal }}"
+        >
+            {% if mode == "register" %}
+            <label class="field">
+                <span>Name</span>
+                <input type="text" name="name" placeholder="Leyla Commuter" required minlength="2">
+            </label>
+            {% endif %}
+            <label class="field">
+                <span>Email</span>
+                <input type="email" name="email" placeholder="you@example.com" required>
+            </label>
+            <label class="field">
+                <span>Password</span>
+                <input type="password" name="password" placeholder="Minimum 8 characters" required minlength="8">
+            </label>
+            <button type="submit" class="button button--primary button--block">
+                {{ "Create account" if mode == "register" else "Enter dashboard" }}
+            </button>
+            <p class="form-message" id="auth-message"></p>
+        </form>
+
+        <div class="auth-links">
+            {% if mode == "register" %}
+            <a href="/login">Already registered? Log in</a>
+            {% else %}
+            <a href="/register">Need a public account? Register</a>
+            {% endif %}
+            {% if portal == "staff" %}
+            <a href="/login">Use public login instead</a>
+            {% else %}
+            <a href="/staff-login">Staff login</a>
+            {% endif %}
+        </div>
+    </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/auth.js" defer></script>
+{% endblock %}
+

@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% set page_title = "Nexus MetroTwin | Admin Panel" %}
+{% set body_class = "dashboard-body" %}
+{% set page_id = "admin" %}
+
+{% block content %}
+<main class="dashboard-shell">
+    <header class="topbar">
+        <a href="/" class="brand-lockup">
+            <span class="brand-mark">NM</span>
+            <span>
+                <strong>Nexus MetroTwin</strong>
+                <small>Admin panel</small>
+            </span>
+        </a>
+        <div class="topbar-meta">
+            <div class="user-chip">
+                <span class="status-dot status-dot--live"></span>
+                <span>{{ current_user.name }}</span>
+                <small>{{ current_user.role }}</small>
+            </div>
+            <a class="button button--ghost" href="/staff">Staff Dashboard</a>
+            <a class="button button--ghost" href="/logout">Logout</a>
+        </div>
+    </header>
+
+    <section class="hero-strip panel">
+        <div>
+            <div class="eyebrow">Admin Panel</div>
+            <h1>Staff account management</h1>
+            <p>Create metro staff accounts, assign admin privileges where needed, and disable access without exposing staff registration publicly.</p>
+        </div>
+    </section>
+
+    <section class="metric-grid" id="admin-metrics"></section>
+
+    <section class="dashboard-grid dashboard-grid--admin">
+        <article class="panel">
+            <div class="section-head">
+                <h2>Create Staff Account</h2>
+            </div>
+            <form id="staff-create-form" class="stack-form">
+                <label class="field">
+                    <span>Name</span>
+                    <input type="text" name="name" required minlength="2" maxlength="80" placeholder="Rashad Operations">
+                </label>
+                <label class="field">
+                    <span>Email</span>
+                    <input type="email" name="email" required maxlength="120" placeholder="staff@nexusmetro.local">
+                </label>
+                <label class="field">
+                    <span>Password</span>
+                    <input type="password" name="password" required minlength="8" maxlength="120" placeholder="Minimum 8 characters">
+                </label>
+                <label class="field">
+                    <span>Role</span>
+                    <select name="role">
+                        <option value="staff" selected>Staff</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </label>
+                <button type="submit" class="button button--primary">Create Account</button>
+                <p class="form-message" id="staff-create-message"></p>
+            </form>
+        </article>
+
+        <article class="panel">
+            <div class="section-head">
+                <h2>Demo Credentials</h2>
+            </div>
+            <div class="credential-grid credential-grid--stacked">
+                <div class="credential-card">
+                    <strong>Public user</strong>
+                    <span>commuter@nexusmetro.local</span>
+                    <code>Metro123!</code>
+                </div>
+                <div class="credential-card">
+                    <strong>Staff</strong>
+                    <span>staff.ops@nexusmetro.local</span>
+                    <code>Metro123!</code>
+                </div>
+                <div class="credential-card">
+                    <strong>Admin</strong>
+                    <span>admin@nexusmetro.local</span>
+                    <code>Admin123!</code>
+                </div>
+            </div>
+        </article>
+    </section>
+
+    <section class="panel">
+        <div class="section-head">
+            <h2>Staff Accounts</h2>
+        </div>
+        <div id="staff-list" class="staff-table-shell"></div>
+    </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/admin.js" defer></script>
+{% endblock %}
+

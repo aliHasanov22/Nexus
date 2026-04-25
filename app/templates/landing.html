@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% set page_title = "Nexus MetroTwin" %}
+{% set body_class = "landing-body" %}
+{% set page_id = "landing" %}
+
+{% block content %}
+<main class="landing-shell">
+    <header class="topbar topbar--landing">
+        <a href="/" class="brand-lockup">
+            <span class="brand-mark">NM</span>
+            <span>
+                <strong>Nexus MetroTwin</strong>
+                <small>Baku Metro mini digital twin</small>
+            </span>
+        </a>
+        <nav class="landing-nav">
+            {% if current_user %}
+            <a class="button button--ghost" href="{{ '/admin' if current_user.role == 'admin' else '/staff' if current_user.role == 'staff' else '/user' }}">
+                Open dashboard
+            </a>
+            {% else %}
+            <a class="button button--ghost" href="/login">Login</a>
+            <a class="button button--ghost" href="/register">Register</a>
+            <a class="button button--primary" href="/staff-login">Staff Login</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <section class="hero-grid">
+        <div class="hero-copy panel panel--hero">
+            <div class="eyebrow">Metro operations command view</div>
+            <h1>Nexus MetroTwin</h1>
+            <p class="hero-text">
+                A mini digital twin for simulating Baku Metro passenger flow, train movement,
+                and emergency scenarios.
+            </p>
+            <div class="hero-actions">
+                {% if current_user %}
+                <a class="button button--primary" href="{{ '/admin' if current_user.role == 'admin' else '/staff' if current_user.role == 'staff' else '/user' }}">
+                    Continue as {{ current_user.name }}
+                </a>
+                {% else %}
+                <a class="button button--primary" href="/register">Start as Public User</a>
+                <a class="button button--ghost" href="/staff-login">Enter Staff Console</a>
+                {% endif %}
+            </div>
+            <div class="stat-band">
+                <div class="stat-pill">
+                    <span>17</span>
+                    <small>Stations in graph</small>
+                </div>
+                <div class="stat-pill">
+                    <span>7</span>
+                    <small>Simulated trains</small>
+                </div>
+                <div class="stat-pill">
+                    <span>7</span>
+                    <small>Operational scenarios</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-panel-stack">
+            <section class="panel highlight-panel">
+                <div class="section-head">
+                    <h2>What it shows</h2>
+                </div>
+                <ul class="feature-list">
+                    <li>Live train motion across a simplified Baku Metro graph</li>
+                    <li>Station crowd intensity from low to critical</li>
+                    <li>Delay alerts, closures, and staff-triggered disruptions</li>
+                    <li>Staff controls for outages, breakdowns, intrusions, and ventilation faults</li>
+                </ul>
+            </section>
+            <section class="panel demo-panel">
+                <div class="section-head">
+                    <h2>Demo Credentials</h2>
+                </div>
+                <div class="credential-grid">
+                    <div class="credential-card">
+                        <strong>Public user</strong>
+                        <span>commuter@nexusmetro.local</span>
+                        <code>Metro123!</code>
+                    </div>
+                    <div class="credential-card">
+                        <strong>Metro staff</strong>
+                        <span>staff.ops@nexusmetro.local</span>
+                        <code>Metro123!</code>
+                    </div>
+                    <div class="credential-card">
+                        <strong>Admin</strong>
+                        <span>admin@nexusmetro.local</span>
+                        <code>Admin123!</code>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </section>
+
+    <section class="feature-grid">
+        <article class="panel feature-card">
+            <div class="eyebrow eyebrow--accent">Public dashboard</div>
+            <h3>Passenger-friendly network overview</h3>
+            <p>See active alerts, train movement, crowding at each station, and quick scenario previews for normal, rush, and event traffic.</p>
+        </article>
+        <article class="panel feature-card">
+            <div class="eyebrow eyebrow--accent">Staff dashboard</div>
+            <h3>Operational controls</h3>
+            <p>Trigger incidents, mark affected stations or track segments, study bottlenecks, and publish public alerts from a single command view.</p>
+        </article>
+        <article class="panel feature-card">
+            <div class="eyebrow eyebrow--accent">Admin panel</div>
+            <h3>Role-based access</h3>
+            <p>Create and deactivate staff accounts, assign staff or admin roles, and keep the staff portal private while public users self-register.</p>
+        </article>
+    </section>
+</main>
+{% endblock %}
+

@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% set page_title = "Nexus MetroTwin | Staff Dashboard" %}
+{% set body_class = "dashboard-body" %}
+{% set page_id = "dashboard" %}
+{% set dashboard_role = "staff" %}
+
+{% block content %}
+<main class="dashboard-shell">
+    <header class="topbar">
+        <a href="/" class="brand-lockup">
+            <span class="brand-mark">NM</span>
+            <span>
+                <strong>Nexus MetroTwin</strong>
+                <small>Metro operations console</small>
+            </span>
+        </a>
+        <div class="topbar-meta">
+            <div class="user-chip">
+                <span class="status-dot status-dot--live"></span>
+                <span>{{ current_user.name }}</span>
+                <small>{{ current_user.role }}</small>
+            </div>
+            {% if current_user.role == "admin" %}
+            <a class="button button--ghost" href="/admin">Admin</a>
+            {% endif %}
+            <a class="button button--ghost" href="/logout">Logout</a>
+        </div>
+    </header>
+
+    <section class="hero-strip panel">
+        <div>
+            <div class="eyebrow">Metro Staff Dashboard</div>
+            <h1>Operations, incident response, and public messaging</h1>
+            <p>Monitor live network pressure, trigger disruptions, assess bottlenecks, and publish clear public alerts from a single command surface.</p>
+        </div>
+        <div class="hero-strip__meta" id="dashboard-mode-summary"></div>
+    </section>
+
+    <section class="metric-grid" id="summary-metrics"></section>
+
+    <section class="alert-stack" id="alert-banner"></section>
+
+    <section class="dashboard-grid dashboard-grid--staff">
+        <article class="panel panel--map">
+            <div class="section-head">
+                <h2>Operations Map</h2>
+                <span id="map-legend" class="inline-legend"></span>
+            </div>
+            <div id="metro-map" class="metro-map"></div>
+        </article>
+
+        <aside class="panel control-column">
+            <div class="section-head">
+                <h2>Scenario Control</h2>
+            </div>
+            <form id="scenario-form" class="stack-form">
+                <label class="field">
+                    <span>Scenario</span>
+                    <select name="scenario_id" id="scenario-select"></select>
+                </label>
+                <div class="field">
+                    <span>Affected stations</span>
+                    <div id="station-checkboxes" class="checkbox-grid"></div>
+                </div>
+                <div class="field">
+                    <span>Affected segments</span>
+                    <div id="segment-checkboxes" class="checkbox-grid"></div>
+                </div>
+                <label class="field">
+                    <span>Operator notes</span>
+                    <textarea name="notes" rows="3" placeholder="Brief incident note or operational action"></textarea>
+                </label>
+                <div class="button-row">
+                    <button type="submit" class="button button--primary">Activate Scenario</button>
+                    <button type="button" class="button button--ghost" id="reset-scenario">Return to Normal</button>
+                </div>
+                <p class="form-message" id="scenario-message"></p>
+            </form>
+
+            <div class="divider"></div>
+
+            <div class="section-head">
+                <h2>Public Alert Composer</h2>
+            </div>
+            <form id="alert-form" class="stack-form">
+                <label class="field">
+                    <span>Title</span>
+                    <input type="text" name="title" maxlength="100" required placeholder="Delay on Green Line">
+                </label>
+                <label class="field">
+                    <span>Message</span>
+                    <textarea name="message" rows="3" maxlength="280" required placeholder="Tell passengers what happened and what to do next."></textarea>
+                </label>
+                <label class="field">
+                    <span>Severity</span>
+                    <select name="severity">
+                        <option value="info">Info</option>
+                        <option value="warning" selected>Warning</option>
+                        <option value="critical">Critical</option>
+                    </select>
+                </label>
+                <button type="submit" class="button button--secondary">Publish Alert</button>
+                <p class="form-message" id="alert-message"></p>
+            </form>
+        </aside>
+    </section>
+
+    <section class="analytics-grid analytics-grid--three">
+        <article class="panel">
+            <div class="section-head">
+                <h2>Passenger Count Over Time</h2>
+            </div>
+            <div id="passenger-chart" class="chart-surface"></div>
+        </article>
+        <article class="panel">
+            <div class="section-head">
+                <h2>Congestion Hotspots</h2>
+            </div>
+            <div id="congestion-chart" class="chart-surface"></div>
+        </article>
+        <article class="panel">
+            <div class="section-head">
+                <h2>Delay Impact by Scenario</h2>
+            </div>
+            <div id="delay-chart" class="chart-surface"></div>
+        </article>
+    </section>
+
+    <section class="dashboard-grid dashboard-grid--insight">
+        <article class="panel">
+            <div class="section-head">
+                <h2>Incident Management</h2>
+            </div>
+            <div id="live-situation" class="info-list"></div>
+            <div class="divider"></div>
+            <div class="section-head">
+                <h2>Recommended Actions</h2>
+            </div>
+            <div id="recommended-actions" class="bullet-stack"></div>
+        </article>
+        <article class="panel">
+            <div class="section-head">
+                <h2>Bottleneck Analysis</h2>
+            </div>
+            <div id="bottleneck-list" class="bottleneck-list"></div>
+        </article>
+        <article class="panel">
+            <div class="section-head">
+                <h2>Station Detail</h2>
+            </div>
+            <div id="station-inspector" class="station-inspector"></div>
+        </article>
+    </section>
+
+    <section class="panel">
+        <div class="section-head">
+            <h2>Station Status</h2>
+        </div>
+        <div id="station-cards" class="station-card-grid"></div>
+    </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/dashboard.js" defer></script>
+{% endblock %}
+

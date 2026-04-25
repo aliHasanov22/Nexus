@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title or "Nexus MetroTwin" }}</title>
+    <meta
+        name="description"
+        content="A mini digital twin for simulating Baku Metro passenger flow, train movement, and emergency scenarios."
+    >
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body
+    class="{{ body_class or '' }}"
+    data-page="{{ page_id or '' }}"
+    data-dashboard-role="{{ dashboard_role or '' }}"
+>
+    <div class="ambient ambient-a"></div>
+    <div class="ambient ambient-b"></div>
+    <div class="ambient ambient-c"></div>
+    {% block content %}{% endblock %}
+    <div id="toast" class="toast" aria-live="polite"></div>
+    <script src="/static/js/core.js" defer></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
+
